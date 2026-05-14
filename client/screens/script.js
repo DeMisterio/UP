@@ -163,30 +163,30 @@ function generateRoomID() {
 }
 
 function initLevel() {
-  // a 7x7 array represents level
-  // 0 = path, 1 = wall, 2 = exit, 3 = Axe, 5 = Health
-  //RoomID, Players, Spectators, World, GameState, MaxPlayers, Ticks
-  db.generateMaze();
-  level = db.Dbase[db.Dbase.length - 1].MazeArr;
-  console.log("The level:");
-  console.log(level);
+  // clear
+  db.Dbase = [];
+  db.ScrollOffset = 0;
+  db.currentMaze = 0;
   gameState = GSPLAY;
-  // fit the maze in to the screen
+
+  // генерируем первые 3 чанка
+  db.generateMaze();
+  db.generateMaze();
+  db.generateMaze();
+
   cellSize = floor(min(width / mazeSize, height / mazeSize));
-  let maze = db.Dbase[db.Dbase.length - 1];
-  // "NindjiaSET" is the charset name — Player resolves images via charSetImages["NindjiaSET"]
+
+  // игрок стартует в первом чанке
+  const firstChunk = db.Dbase[0];
   player = new Player(
-    maze.StartX,
-    maze.StartY,
+    firstChunk.StartX,
+    firstChunk.StartY,
     "local",
     "NindjiaSET",
     "red",
     "Player1",
     [],
   );
-  lobby.addPlayer(player);
-  lobby.World = level;
-  lobby.startGame();
 }
 
 function preload() {
