@@ -1,7 +1,6 @@
 import { MazeDataBase } from "../../shared/Mazegen.js";
 import { CharSet } from "../Charset.js";
 import { Player } from "../player.js";
-import { GameRoom } from "../../server/GameLobby.js";
 /**
  * Really ~Simple~ INTERESTING Maze game
  * Array holds maze data
@@ -67,22 +66,44 @@ function setup() {
   initLevel();
 }
 
+// script.js
+let lastTime = 0;
+
 function draw() {
-  // iterate through the level array to draw the maze
+  const now = millis();
+  const dt = (now - lastTime) / 1000;
+  lastTime = now;
+
+  // двигаем мир вниз
+  db.ScrollOffset += db.ScrollSpeed * dt;
+
+  // смерть
+  if (player.globalY < db.ScrollOffset) {
+    gameState = GSLOSE;
+  }
+
+  // рисуем
+  background(150);
   for (let y = 0; y < mazeSize; y++) {
     for (let x = 0; x < mazeSize; x++) {
-      // use the array value as the colour index
+      const screenY = (y - db.ScrollOffset) * cellSize;
       fill(cellColour[level[y][x]]);
-      rect(x * cellSize, y * cellSize, cellSize, cellSize);
-      // i draw item image if this cell holds an item
+      rect(x * cellSize, screenY, cellSize, cellSize);
       const img = itemImages[level[y][x]];
-      if (img) image(img, x * cellSize, y * cellSize, cellSize, cellSize);
+      if (img) image(img, x * cellSize, screenY, cellSize, cellSize);
     }
   }
+
   player.draw();
-  // TASK 7: draw appropriate message to show gamestate
-  // TODO: if the gameState is GSWIN display "You've won" or similar in a large message in middle of screen
-  // TODO: if the gameState is GSLOSE display "You've lost" or similar in a large message in middle of screen
+
+  if (gameState === GSLOSE) {
+    fill(0, 0, 0, 150);
+    rect(0, 0, width, height);
+    fill(255, 0, 0);
+    textSize(60);
+    textAlign(CENTER, CENTER);
+    text("YOU DIED", width / 2, height / 2);
+  }
 }
 
 function keyPressed() {

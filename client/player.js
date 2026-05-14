@@ -1,24 +1,20 @@
 import { db, ITEM_DEFS, charSetImages, cellSize } from "./screens/script.js";
-/**
- * The Player class defines the functions to draw and move the player
- * the player coordinates are stored (this.x,this.y) as is the current image (this.img)
- * this could be extended to include player health and other attributes
- */
+
 export class Player {
   constructor(x, y, PlayerID, ThisIMG, TrailColor, Uname, inventory) {
     this.x = x;
-    this.y = y;
+    this.globalY = y;
     this.PlayerID = PlayerID;
-    // ThisIMG is the charset name (e.g. "NindjiaSET")
-    // charSetImages resolves it to { up, right, down, left } of p5.Image
     this.ThisIMG = charSetImages[ThisIMG];
-    this.img = this.ThisIMG.right; // Defines the default image (facing right)
+    this.img = this.ThisIMG.right;
     this.inventory = inventory ?? [];
+    this.TrailColor = TrailColor;
+    this.IsAlive = true;
   }
 
-  draw() {
-    // player is represented by a static character
-    image(this.img, cellSize * this.x, cellSize * this.y, cellSize, cellSize);
+  draw(scrollOffset = 0) {
+    const screenY = (this.globalY - scrollOffset) * cellSize;
+    image(this.img, cellSize * this.x, screenY, cellSize, cellSize);
   }
 
   up() {
@@ -61,21 +57,18 @@ export class Player {
     );
   }
 
-  // dir is [dx, dy]: [1,0]=right, [-1,0]=left, [0,1]=down, [0,-1]=up
-  // itemList = ITEM_DEFS — { itemName: { mapCode, image } }
   slideMove(maze, dir, itemList, inventory) {
     let nx = this.x + dir[0];
-    let ny = this.y + dir[1];
+    let ny = this.globalY + dir[1];
 
     while (
       ny >= 0 &&
       ny < maze.length &&
       nx >= 0 &&
       nx < maze[0].length &&
-      maze[ny][nx] !== 1 // stop at walls
+      maze[ny][nx] !== 1
     ) {
       const cell = maze[ny][nx];
-      // Look up item by mapCode and add its name to inventory
       const itemEntry = Object.entries(itemList).find(
         ([, def]) => def.mapCode === cell,
       );
@@ -88,7 +81,7 @@ export class Player {
       }
 
       this.x = nx;
-      this.y = ny;
+      this.globalY = ny;
       nx += dir[0];
       ny += dir[1];
     }
