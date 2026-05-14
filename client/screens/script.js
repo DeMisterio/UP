@@ -82,19 +82,43 @@ function draw() {
     gameState = GSLOSE;
   }
 
-  // рисуем
+  // догенерация — если игрок близко к верху последнего чанка
+  const topOfWorld = db.Dbase.length * mazeSize;
+  if (player.globalY > topOfWorld - 10) {
+    db.generateMaze();
+  }
+
+  // удаляем нижний чанк если ушёл за экран
+  if (db.ScrollOffset > mazeSize) {
+    db.Dbase.shift();
+    db.ScrollOffset -= mazeSize;
+  }
+
   background(150);
-  for (let y = 0; y < mazeSize; y++) {
-    for (let x = 0; x < mazeSize; x++) {
-      const screenY = (y - db.ScrollOffset) * cellSize;
-      fill(cellColour[level[y][x]]);
-      rect(x * cellSize, screenY, cellSize, cellSize);
-      const img = itemImages[level[y][x]];
-      if (img) image(img, x * cellSize, screenY, cellSize, cellSize);
+
+  // рисуем ВСЕ чанки
+  for (let ci = 0; ci < db.Dbase.length; ci++) {
+    const chunk = db.Dbase[ci];
+    const chunkBaseY = ci * mazeSize; // глобальная Y нижней строки чанка
+
+    for (let y = 0; y < mazeSize; y++) {
+      for (let x = 0; x < mazeSize; x++) {
+        const globalY = chunkBaseY + y;
+        const screenY = (globalY - db.ScrollOffset) * cellSize;
+
+        // не рисуем то что за экраном
+        if (screenY > height || screenY < -cellSize) continue;
+
+        fill(cellColour[chunk.MazeArr[y][x]]);
+        rect(x * cellSize, screenY, cellSize, cellSize);
+
+        const img = itemImages[chunk.MazeArr[y][x]];
+        if (img) image(img, x * cellSize, screenY, cellSize, cellSize);
+      }
     }
   }
 
-  player.draw();
+  player.draw(db.ScrollOffset);
 
   if (gameState === GSLOSE) {
     fill(0, 0, 0, 150);
@@ -142,8 +166,6 @@ function initLevel() {
   // a 7x7 array represents level
   // 0 = path, 1 = wall, 2 = exit, 3 = Axe, 5 = Health
   //RoomID, Players, Spectators, World, GameState, MaxPlayers, Ticks
-
-  let lobby = new GameRoom(generateRoomID(), [], [], db.Dbase, "waiting", 4, 0);
   db.generateMaze();
   level = db.Dbase[db.Dbase.length - 1].MazeArr;
   console.log("The level:");
