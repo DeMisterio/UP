@@ -1,0 +1,46 @@
+{
+  // Имя — видно в UI Codespaces
+  "name": "Infinite Tower Maze",
+
+  // Node 22 LTS — тянет и p5.js клиент, и Colyseus сервер
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+
+  // Доп. инструменты внутри контейнера
+  "features": {
+    // gh CLI — нужен чтобы скриптом делать порт публичным (см. setup.sh)
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  // Порты, которые пробрасываются автоматически как только на них кто-то слушает
+  "forwardPorts": [3000, 2567],
+
+  // Подписи и поведение этих портов во вкладке PORTS
+  "portsAttributes": {
+    "3000": {
+      "label": "Client (p5.js)",
+      "onAutoForward": "openPreview"
+    },
+    "2567": {
+      "label": "Colyseus server",
+      "onAutoForward": "notify"
+    }
+  },
+
+  // Запускается ОДИН раз после сборки контейнера
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+
+  "customizations": {
+    "vscode": {
+      // Расширения ставятся автоматически в каждый codespace
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.live-server"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  }
+}
