@@ -1,4 +1,4 @@
-import { db, ITEM_DEFS, charSetImages, cellSize } from "./script.js";
+import { db, ITEM_DEFS, charSetImages, cellSize } from "./screens/script.js";
 /**
  * The Player class defines the functions to draw and move the player
  * the player coordinates are stored (this.x,this.y) as is the current image (this.img)
