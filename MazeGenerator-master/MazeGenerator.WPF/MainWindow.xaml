@@ -1,0 +1,164 @@
+﻿<Window x:Class="MazeGenerator.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MazeGenerator.WPF"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
+        mc:Ignorable="d"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        FontFamily="{materialDesign:MaterialDesignFont}"
+        Title="Maze Generator"
+        WindowStartupLocation="CenterScreen"
+        Height="450" 
+        Width="800">
+
+    <Window.Resources>
+        <Style TargetType="Label">
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Grid.Column" Value="1" />
+        </Style>
+        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Width" Value="150" />
+            <Setter Property="Grid.ColumnSpan" Value="2" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" MinWidth="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border
+            VerticalAlignment="Center"
+            Margin="10"
+            BorderThickness="1"
+            BorderBrush="{StaticResource MaterialDesignDarkSeparatorBackground}">
+            <Grid
+                VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*" MinWidth="80"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Label
+                    Content="Width"/>
+                <TextBox 
+                    x:Name="WidthInput"
+                    Text="50"
+                    materialDesign:TextFieldAssist.SuffixText="cells"/>
+
+                <Label
+                    Grid.Row="1"
+                    Content="Height"/>
+                <TextBox 
+                    Grid.Row="1"
+                    x:Name="HeightInput" 
+                    Text="30"
+                    materialDesign:TextFieldAssist.SuffixText="cells"/>
+
+                <Label
+                    Grid.Row="2"
+                    Content="Cell Size"/>
+                <TextBox 
+                    Grid.Row="2"
+                    x:Name="CellSizeInput"
+                    Text="10"
+                    materialDesign:TextFieldAssist.SuffixText="px"/>
+
+                <Button 
+                    Grid.Row="3"
+                    Content="Generate" 
+                    Click="GenerateButton_Click"/>
+
+                <Label
+                    Grid.Row="4"
+                    Content="Path Finding"/>
+                <ComboBox 
+                    Grid.Row="4"
+                    Grid.Column="1"
+                    x:Name="PathFindModeComboBox"
+                    materialDesign:ComboBoxAssist.ShowSelectedItem="True"
+                    Margin="5">
+                    <ComboBoxItem Content="Shortest Path" IsSelected="True"/>
+                    <ComboBoxItem Content="First Path"/>
+                    <ComboBoxItem Content="Bidirectional"/>
+                </ComboBox>
+
+                <Label
+                    Grid.Row="5"
+                    Content="Step Delay"/>
+                <TextBox
+                    Grid.Row="5"
+                    x:Name="DelayInput"
+                    Text="0"
+                    materialDesign:TextFieldAssist.SuffixText="ms"/>
+
+                <Label
+                    Grid.Row="6"
+                    Content="Path Color"/>
+                <materialDesign:ColorPicker
+                    x:Name="ColorPicker"
+                    Grid.Row="6"
+                    Grid.Column="1"/>
+
+                <Button 
+                    Grid.Row="7"
+                    Content="Solve Maze" 
+                    Click="SolveMazeButton_Click"/>
+
+                <StackPanel
+                    Grid.ColumnSpan="2"
+                    HorizontalAlignment="Center"
+                    Grid.Row="8"
+                    Orientation="Horizontal">
+                    <Label 
+                        x:Name="StatusLabel"
+                        MaxWidth="220"
+                        Content="Start Generating amazing Mazes!"/>
+                    <ProgressBar
+                        x:Name="LoadingIcon"
+                        Visibility="Collapsed"
+                        IsIndeterminate="True"
+                        Style="{StaticResource MaterialDesignCircularProgressBar}"
+                        Value="0" />
+                </StackPanel>
+
+                <Button
+                    x:Name="SaveButton"
+                    Grid.ColumnSpan="2"
+                    Grid.Row="9"
+                    Padding="4"
+                    Content="Save Maze as Jpeg" 
+                    Click="SaveButton_Click"/>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <skia:SKElement x:Name="MazeView" PaintSurface="OnPaintSurface"/>
+        </ScrollViewer>
+    </Grid>
+</Window>

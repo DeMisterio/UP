@@ -1,0 +1,4 @@
+{
+  "Axe":    { "mapCode": 3, "image": "images/Toolset/Axe.png" },
+  "Health": { "mapCode": 5, "image": "images/Toolset/Health.png" }
+}
