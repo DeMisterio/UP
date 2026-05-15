@@ -25,8 +25,8 @@ export const db = new MazeDataBase([], mazeSize, mazeSize, 1, 2);
 // Centralized item definitions — mirrors items.json
 // mapCode matches the number stored in the maze array cell
 export const ITEM_DEFS = {
-  Axe: { mapCode: 3, image: "images/Toolset/Axe.png" },
-  Health: { mapCode: 5, image: "images/Toolset/Health.png" },
+  Axe: { mapCode: 3, image: "client/images/Toolset/Axe.png" },
+  Health: { mapCode: 5, image: "client/images/Toolset/Health.png" },
 };
 
 // Map cell codes:
@@ -68,6 +68,8 @@ function setup() {
 
 // script.js
 let lastTime = 0;
+let scrollStarted = false;
+let gameStartTime = 0;
 
 function draw() {
   const now = millis();
@@ -75,27 +77,31 @@ function draw() {
   lastTime = now;
 
   // двигаем мир вниз
-  db.ScrollOffset += db.ScrollSpeed * dt;
+  if (!scrollStarted) {
+    if (millis() - gameStartTime > 3000) scrollStarted = true;
+  } else {
+    db.ScrollOffset += db.ScrollSpeed * dt;
+  }
 
-  // смерть
+  // смерть — съело снизу
   if (player.globalY < db.ScrollOffset) {
     gameState = GSLOSE;
   }
 
-  // догенерация — если игрок близко к верху последнего чанка
-  const topOfWorld = db.Dbase.length * mazeSize;
-  if (player.globalY > topOfWorld - 10) {
+  // догенерация — близко к верху башни
+  const maxGlobalY = db.Dbase.length * mazeSize - 1;
+  if (player.globalY > maxGlobalY - 5) {
     db.generateMaze();
   }
 
-  // удаляем нижний чанк если ушёл за экран
-  if (db.ScrollOffset > mazeSize) {
+  // чистим нижний чанк
+  if (db.ScrollOffset >= mazeSize) {
     db.Dbase.shift();
     db.ScrollOffset -= mazeSize;
   }
 
   background(150);
-
+  console.log(`globalY: ${player.globalY}, ScrollOffset: ${db.ScrollOffset}`);
   // рисуем ВСЕ чанки
   for (let ci = 0; ci < db.Dbase.length; ci++) {
     const chunk = db.Dbase[ci];
@@ -104,7 +110,7 @@ function draw() {
     for (let y = 0; y < mazeSize; y++) {
       for (let x = 0; x < mazeSize; x++) {
         const globalY = chunkBaseY + y;
-        const screenY = (globalY - db.ScrollOffset) * cellSize;
+        const screenY = height - (globalY - db.ScrollOffset + 1) * cellSize;
 
         // не рисуем то что за экраном
         if (screenY > height || screenY < -cellSize) continue;
@@ -163,24 +169,24 @@ function generateRoomID() {
 }
 
 function initLevel() {
-  // clear
   db.Dbase = [];
   db.ScrollOffset = 0;
   db.currentMaze = 0;
+  scrollStarted = false;
+  gameStartTime = millis();
   gameState = GSPLAY;
 
-  // генерируем первые 3 чанка
   db.generateMaze();
   db.generateMaze();
   db.generateMaze();
 
   cellSize = floor(min(width / mazeSize, height / mazeSize));
 
-  // игрок стартует в первом чанке
   const firstChunk = db.Dbase[0];
+  // globalY=0 = arrayRow=14 = вход в лабиринт снизу
   player = new Player(
     firstChunk.StartX,
-    firstChunk.StartY,
+    0,
     "local",
     "NindjiaSET",
     "red",

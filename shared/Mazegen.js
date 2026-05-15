@@ -35,7 +35,6 @@ export class MazeDataBase {
     })();
   }
   generateMaze() {
-    //Generate a new mase and add to the list od mazes
     let NewMaze = new Maze(
       this.WStandart,
       this.HStandart,
@@ -45,6 +44,8 @@ export class MazeDataBase {
     );
     this.Dbase.push(NewMaze);
     this.currentMaze++;
+    // ОБНОВЛЯЕМ вход для следующего чанка = выход текущего
+    this.LastExitCords = [NewMaze.ExitX, this.HStandart - 3];
     return NewMaze;
   }
   cleanDbase() {
@@ -164,6 +165,7 @@ export class Maze {
     Maze[this.H - 1][StartX] = 0; // carve entrance at bottom border
     this.StartX = StartX;
     this.StartY = StartY;
+    this.ExitX = EndX;
     return Maze;
   }
 }

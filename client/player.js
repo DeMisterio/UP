@@ -12,78 +12,73 @@ export class Player {
     this.IsAlive = true;
   }
 
-  draw(scrollOffset = 0) {
-    const screenY = (this.globalY - scrollOffset) * cellSize;
-    image(this.img, cellSize * this.x, screenY, cellSize, cellSize);
+  // globalY растёт ВВЕРХ по башне
+  // arrayRow = (mazeSize-1) - (globalY % mazeSize)
+  // chunkIndex = Math.floor(globalY / mazeSize)
+  getTile(x, globalY) {
+    if (globalY < 0) return 1;
+    const H = db.HStandart;
+    const chunkIndex = Math.floor(globalY / H);
+    const arrayRow = H - 1 - (globalY % H);
+    const chunk = db.Dbase[chunkIndex];
+    if (!chunk) return 1;
+    return chunk.MazeArr[arrayRow]?.[x] ?? 1;
+  }
+
+  setTile(x, globalY, value) {
+    if (globalY < 0) return;
+    const H = db.HStandart;
+    const chunkIndex = Math.floor(globalY / H);
+    const arrayRow = H - 1 - (globalY % H);
+    const chunk = db.Dbase[chunkIndex];
+    if (chunk) chunk.MazeArr[arrayRow][x] = value;
+  }
+
+  move(dy) {
+    const ny = this.globalY + dy;
+    const tile = this.getTile(this.x, ny);
+    if (tile === 1) return;
+    const item = Object.entries(ITEM_DEFS).find(([, d]) => d.mapCode === tile);
+    if (item) {
+      this.inventory.push(item[0]);
+      console.log(`Picked up ${item[0]}!`);
+      this.setTile(this.x, ny, 0);
+    }
+    this.globalY = ny;
+  }
+
+  moveX(dx) {
+    const nx = this.x + dx;
+    if (nx < 0 || nx >= db.WStandart) return;
+    const tile = this.getTile(nx, this.globalY);
+    if (tile === 1) return;
+    const item = Object.entries(ITEM_DEFS).find(([, d]) => d.mapCode === tile);
+    if (item) {
+      this.inventory.push(item[0]);
+      this.setTile(nx, this.globalY, 0);
+    }
+    this.x = nx;
   }
 
   up() {
     this.img = this.ThisIMG.up;
-    this.slideMove(
-      db.Dbase[db.Dbase.length - 1].MazeArr,
-      [0, -1],
-      ITEM_DEFS,
-      this.inventory,
-    );
+    this.move(+1);
   }
-
-  right() {
-    this.img = this.ThisIMG.right;
-    this.slideMove(
-      db.Dbase[db.Dbase.length - 1].MazeArr,
-      [1, 0],
-      ITEM_DEFS,
-      this.inventory,
-    );
-  }
-
   down() {
     this.img = this.ThisIMG.down;
-    this.slideMove(
-      db.Dbase[db.Dbase.length - 1].MazeArr,
-      [0, 1],
-      ITEM_DEFS,
-      this.inventory,
-    );
+    this.move(-1);
   }
-
+  right() {
+    this.img = this.ThisIMG.right;
+    this.moveX(+1);
+  }
   left() {
     this.img = this.ThisIMG.left;
-    this.slideMove(
-      db.Dbase[db.Dbase.length - 1].MazeArr,
-      [-1, 0],
-      ITEM_DEFS,
-      this.inventory,
-    );
+    this.moveX(-1);
   }
 
-  slideMove(maze, dir, itemList, inventory) {
-    let nx = this.x + dir[0];
-    let ny = this.globalY + dir[1];
-
-    while (
-      ny >= 0 &&
-      ny < maze.length &&
-      nx >= 0 &&
-      nx < maze[0].length &&
-      maze[ny][nx] !== 1
-    ) {
-      const cell = maze[ny][nx];
-      const itemEntry = Object.entries(itemList).find(
-        ([, def]) => def.mapCode === cell,
-      );
-      if (itemEntry) {
-        inventory.push(itemEntry[0]);
-        console.log(
-          `Picked up ${itemEntry[0]}! Inventory: ${inventory.join(", ")}`,
-        );
-        maze[ny][nx] = 0;
-      }
-
-      this.x = nx;
-      this.globalY = ny;
-      nx += dir[0];
-      ny += dir[1];
-    }
+  draw(scrollOffset = 0) {
+    const screenY = height - (this.globalY - scrollOffset + 1) * cellSize;
+    image(this.img, this.x * cellSize, screenY, cellSize, cellSize);
   }
 }
