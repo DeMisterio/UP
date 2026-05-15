@@ -34,13 +34,14 @@ export class MazeDataBase {
       }
     })();
   }
-  generateMaze() {
+  generateMaze(mazeTexture) {
     let NewMaze = new Maze(
       this.WStandart,
       this.HStandart,
       this.LastExitCords,
       this.AxeSpawnStandart,
       this.HealthSpawnStandart,
+      mazeTexture,
     );
     this.Dbase.push(NewMaze);
     this.currentMaze++;
@@ -60,12 +61,14 @@ export class Maze {
     LastExitCords,
     AxeSpawnProb,
     HealthSpawnProb,
+    mazeTexture,
   ) {
     this.W = WStandart;
     this.H = HStandart;
     this.ExitCords = LastExitCords;
     this.AxeSpawnProb = AxeSpawnProb;
     this.HealthSpawnProb = HealthSpawnProb;
+    this.maze_texture = mazeTexture ?? null;
     this.MazeArr = this.generateMaze();
   }
   generateMaze() {
