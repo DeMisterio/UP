@@ -169,6 +169,7 @@ function draw() {
   }
 
   player.draw(db.ScrollOffset, cellSize);
+  drawHUD();
   drawAnnouncements();
   //draw announcements every rate
   if (gameState === GSLOSE) {
@@ -179,6 +180,65 @@ function draw() {
     textAlign(CENTER, CENTER);
     text("YOU DIED", width / 2, height / 2);
   }
+}
+
+function drawHUD() {
+  if (!player) return;
+
+  push();
+  //The size of a slot i do
+  const slotSize = 36;
+  const pad = 6;
+  const margin = 14;
+
+  // Health panel
+
+  //how many slots availlable (3 healths max)
+  const hSlots = 3;
+  //defining the width and heigh of a single slot
+  const hPanelW = hSlots * slotSize + (hSlots + 1) * pad;
+  const hPanelH = slotSize + pad * 2;
+  const hPanelX = width - hPanelW - margin;
+  const hPanelY = margin;
+
+  fill(0, 0, 0, 170);
+  stroke(100, 100, 100, 200);
+  strokeWeight(1);
+  rect(hPanelX, hPanelY, hPanelW, hPanelH, 6);
+  noStroke();
+
+  for (let i = 0; i < hSlots; i++) {
+    const sx = hPanelX + pad + i * (slotSize + pad);
+    const sy = hPanelY + pad;
+    if (i < player.health) {
+      tint(255);
+    } else {
+      tint(255, 55);
+    }
+    image(itemImages[5], sx, sy, slotSize, slotSize);
+    noTint();
+  }
+
+  // Inventory panel
+  const iPanelW = slotSize + pad * 2;
+  const iPanelH = slotSize + pad * 2;
+  const iPanelX = width - iPanelW - margin;
+  const iPanelY = hPanelY + hPanelH + 6;
+
+  fill(0, 0, 0, 170);
+  stroke(100, 100, 100, 200);
+  strokeWeight(1);
+  rect(iPanelX, iPanelY, iPanelW, iPanelH, 6);
+  noStroke();
+
+  const hasAxe = player.inventory.includes("Axe");
+  //Make it tinted if we have no axe
+  tint(255, hasAxe ? 255 : 55);
+  //simply add the axe image
+  image(itemImages[3], iPanelX + pad, iPanelY + pad, slotSize, slotSize);
+  noTint();
+
+  pop();
 }
 
 function drawAnnouncements() {
