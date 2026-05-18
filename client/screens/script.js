@@ -3,7 +3,7 @@ import { MazeDataBase } from "../../shared/Mazegen.js";
 import { Player } from "../player.js";
 
 // Replace the import with this at the top of script.js
-const res = await fetch("./Charset.json");
+const res = await fetch(new URL("../Charset.json", import.meta.url));
 const CharSet = await res.json();
 // const colyseusClient = new Colyseus.Client(
 //   "wss://special-space-couscous-694w5q5rvg99cjx4-2567.app.github.dev",
@@ -14,7 +14,7 @@ let level = [];
 export let cellSize = 0;
 let mazeSize = 15;
 let player;
-
+const playerSet = "NindjiaSET";
 let announcements = [];
 
 function showAnnouncement(text, duration) {
@@ -60,11 +60,10 @@ const GSLOSE = 1;
 const GSWIN = 2;
 let gameState = GSPLAY;
 
-// Returns a random texture key (e.g. 'cave/Tileable3h.png') from TEXTURE_SETS.
 function pickTexture() {
-  const sets = Object.keys(TEXTURE_SETS);
+  const sets = Object.keys(CharSet.Textures);
   const set = sets[Math.floor(Math.random() * sets.length)];
-  const files = TEXTURE_SETS[set];
+  const files = CharSet.Textures[set];
   return files[Math.floor(Math.random() * files.length)];
 }
 
@@ -97,6 +96,8 @@ function draw() {
       lastSpeedUp = now;
     }
   }
+
+  if (!player) return;
 
   // Death — eaten by the bottom scroll
   const absoluteScrollOffset =
@@ -152,7 +153,7 @@ function draw() {
     }
   }
 
-  player.draw(db.ScrollOffset);
+  player.draw(db.ScrollOffset, cellSize);
   drawAnnouncements();
   //draw announcements every rate
   if (gameState === GSLOSE) {
@@ -208,28 +209,14 @@ function generateRoomID() {
   return id;
 }
 
-async function initLevel() {
+function initLevel() {
   db.Dbase = [];
   db.ScrollOffset = 0;
   db.currentMaze = 0;
   db.removedChunks = 0;
   scrollStarted = false;
-
-  //Legacy => multiplayer
-
-  // try {
-  //   room = await colyseusClient.joinOrCreate("game_room", { name: "Deni" });
-  //   console.log("Joined room:", room.id);
-
-  //   room.onMessage("game_start", (msg) => {
-  //     gameStartAt = msg.startAt;
-  //   });
-  // } catch (e) {
-  //   console.warn("Сервер недоступен, играем одни:", e.message);
-  // }
-  // gameStartTime = millis() // millist is a p5 function i use. It returns the amo of ms since the start of the programm;
-  // lastSpeedUp = millis();
-
+  gameStartTime = millis();
+  lastSpeedUp = millis();
   gameState = GSPLAY;
 
   db.generateMaze(pickTexture());
@@ -243,34 +230,29 @@ async function initLevel() {
     firstChunk.StartX,
     0,
     "local",
-    "NindjiaSET",
+    charSetImages,
+    CharSet.Items,
+    db,
     "red",
     "Player1",
     [],
   );
 }
 
-//Preleads the Texture packs
 function preload() {
-  // Character image sets
-  Object.entries(CharSet[player.ThisIMG]).forEach(([name, paths]) => {
-    charSetImages[name] = {
-      up: loadImage(paths.up),
-      right: loadImage(paths.right),
-      down: loadImage(paths.down),
-      left: loadImage(paths.left),
-    };
-  });
+  const paths = CharSet[playerSet];
+  charSetImages.up = loadImage(paths.up);
+  charSetImages.right = loadImage(paths.right);
+  charSetImages.down = loadImage(paths.down);
+  charSetImages.left = loadImage(paths.left);
 
-  // Item images
   Object.entries(CharSet.Items).forEach(([, def]) => {
     itemImages[def.mapCode] = loadImage(def.image);
   });
 
-  // All wall textures (loaded once; each chunk picks one at generation time)
   Object.values(CharSet.Textures).forEach((files) => {
     files.forEach((file) => {
-      wallTextures[file] = loadImage(`client/images/textures/${file}`);
+      wallTextures[file] = loadImage(`images/textures/${file}`);
     });
   });
 }
