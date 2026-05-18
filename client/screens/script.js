@@ -1,6 +1,7 @@
 import { MazeDataBase } from "../../shared/Mazegen.js";
-import { CharSet } from "../Charset.js";
+import { ChangeTree } from "../colyseus.js";
 import { Player } from "../player.js";
+const CharSet = require("client/Charset.json");
 
 const colyseusClient = new Colyseus.Client(
   "wss://special-space-couscous-694w5q5rvg99cjx4-2567.app.github.dev",
@@ -25,10 +26,6 @@ export const db = new MazeDataBase([], mazeSize, mazeSize, 1, 2);
 
 // Centralized item definitions — mirrors items.json
 // mapCode matches the number stored in the maze array cell
-export const ITEM_DEFS = {
-  Axe: { mapCode: 3, image: "client/images/Toolset/Axe.png" },
-  Health: { mapCode: 5, image: "client/images/Toolset/Health.png" },
-};
 
 // Map cell codes:
 //   0 = empty path
@@ -36,95 +33,6 @@ export const ITEM_DEFS = {
 //   2 = exit
 //   3 = Axe      (see ITEM_DEFS)
 //   5 = Health   (see ITEM_DEFS)
-
-// Texture sets for walls — one set is chosen per chunk at generation time.
-// Each entry maps a set name to the list of tileable texture filenames.
-// Paths are relative to client/images/textures/.
-const TEXTURE_SETS = {
-  cave: [
-    "cave/Tileable10c.png",
-    "cave/Tileable10d.png",
-    "cave/Tileable1d.png",
-    "cave/Tileable1h.png",
-    "cave/Tileable2f.png",
-    "cave/Tileable2i.png",
-    "cave/Tileable3c.png",
-    "cave/Tileable3h.png",
-    "cave/Tileable4c.png",
-    "cave/Tileable4h.png",
-    "cave/Tileable5e.png",
-    "cave/Tileable6e.png",
-    "cave/Tileable7e.png",
-    "cave/Tileable7g.png",
-    "cave/Tileable8c.png",
-    "cave/Tileable9c.png",
-  ],
-  city: [
-    "city/Tileable1b.png",
-    "city/Tileable1c.png",
-    "city/Tileable1g.png",
-    "city/Tileable2a.png",
-    "city/Tileable2b.png",
-    "city/Tileable3f.png",
-    "city/Tileable3j.png",
-    "city/Tileable4a.png",
-    "city/Tileable4i.png",
-    "city/Tileable5a.png",
-    "city/Tileable5b.png",
-    "city/Tileable5d.png",
-    "city/Tileable5j.png",
-    "city/Tileable6b.png",
-    "city/Tileable6d.png",
-    "city/Tileable7a.png",
-    "city/Tileable7h.png",
-    "city/Tileable8d.png",
-    "city/Tileable8e.png",
-    "city/Tileable9f.png",
-  ],
-  desert: [
-    "desert/Tileable10y.png",
-    "desert/Tileable1a.png",
-    "desert/Tileable2d.png",
-    "desert/Tileable3a.png",
-    "desert/Tileable4y.png",
-    "desert/Tileable5y.png",
-    "desert/Tileable6y.png",
-    "desert/Tileable7c.png",
-    "desert/Tileable8b.png",
-    "desert/Tileable8y.png",
-    "desert/Tileable9y.png",
-  ],
-  ice: [
-    "ice/Tileable10b.png",
-    "ice/Tileable1e.png",
-    "ice/Tileable1f.png",
-    "ice/Tileable2e.png",
-    "ice/Tileable3d.png",
-    "ice/Tileable3g.png",
-    "ice/Tileable3i.png",
-    "ice/Tileable4d.png",
-    "ice/Tileable4e.png",
-    "ice/Tileable4h.png",
-    "ice/Tileable5c.png",
-    "ice/Tileable6c.png",
-    "ice/Tileable6f.png",
-    "ice/Tileable7b.png",
-    "ice/Tileable8c.png",
-    "ice/Tileable9a.png",
-  ],
-  ruins: [
-    "ruins/Tileable10e.png",
-    "ruins/Tileable1k.png",
-    "ruins/Tileable2k.png",
-    "ruins/Tileable3k.png",
-    "ruins/Tileable4k.png",
-    "ruins/Tileable5k.png",
-    "ruins/Tileable6k.png",
-    "ruins/Tileable7i.png",
-    "ruins/Tileable8f.png",
-    "ruins/Tileable9k.png",
-  ],
-};
 
 // Floor / special cell colours (walls use textures instead)
 let cellColour = [
@@ -340,7 +248,7 @@ async function initLevel() {
 //Preleads the Texture packs
 function preload() {
   // Character image sets
-  Object.entries(CharSet).forEach(([name, paths]) => {
+  Object.entries(CharSet[player.ThisIMG]).forEach(([name, paths]) => {
     charSetImages[name] = {
       up: loadImage(paths.up),
       right: loadImage(paths.right),
@@ -350,12 +258,12 @@ function preload() {
   });
 
   // Item images
-  Object.entries(ITEM_DEFS).forEach(([, def]) => {
+  Object.entries(CharSet.Items).forEach(([, def]) => {
     itemImages[def.mapCode] = loadImage(def.image);
   });
 
   // All wall textures (loaded once; each chunk picks one at generation time)
-  Object.values(TEXTURE_SETS).forEach((files) => {
+  Object.values(CharSet.Textures).forEach((files) => {
     files.forEach((file) => {
       wallTextures[file] = loadImage(`client/images/textures/${file}`);
     });
