@@ -18,7 +18,7 @@ export class Player {
   getTile(x, globalY) {
     if (globalY < 0) return 1;
     const H = db.HStandart;
-    const chunkIndex = Math.floor(globalY / H);
+    const chunkIndex = Math.floor(globalY / H) - (db.removedChunks ?? 0);
     const arrayRow = H - 1 - (globalY % H);
     const chunk = db.Dbase[chunkIndex];
     if (!chunk) return 1;
@@ -28,7 +28,7 @@ export class Player {
   setTile(x, globalY, value) {
     if (globalY < 0) return;
     const H = db.HStandart;
-    const chunkIndex = Math.floor(globalY / H);
+    const chunkIndex = Math.floor(globalY / H) - (db.removedChunks ?? 0);
     const arrayRow = H - 1 - (globalY % H);
     const chunk = db.Dbase[chunkIndex];
     if (chunk) chunk.MazeArr[arrayRow][x] = value;
@@ -78,7 +78,8 @@ export class Player {
   }
 
   draw(scrollOffset = 0) {
-    const screenY = height - (this.globalY - scrollOffset + 1) * cellSize;
+    const relativeY = this.globalY - (db.removedChunks ?? 0) * db.HStandart;
+    const screenY = height - (relativeY - scrollOffset + 1) * cellSize;
     image(this.img, this.x * cellSize, screenY, cellSize, cellSize);
   }
 }
