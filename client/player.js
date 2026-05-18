@@ -1,11 +1,13 @@
-import { db, ITEM_DEFS, charSetImages, cellSize } from "./screens/script.js";
+import { db, cellSize } from "./screens/script.js";
+const res = await fetch("./Charset.json");
+const CharSet = await res.json();
 
 export class Player {
   constructor(x, y, PlayerID, ThisIMG, TrailColor, Uname, inventory) {
     this.x = x;
     this.globalY = y;
     this.PlayerID = PlayerID;
-    this.ThisIMG = charSetImages[ThisIMG];
+    this.ThisIMG = CharSet[ThisIMG];
     this.img = this.ThisIMG.right;
     this.inventory = inventory ?? [];
     this.TrailColor = TrailColor;
@@ -38,7 +40,9 @@ export class Player {
     const ny = this.globalY + dy;
     const tile = this.getTile(this.x, ny);
     if (tile === 1) return;
-    const item = Object.entries(ITEM_DEFS).find(([, d]) => d.mapCode === tile);
+    const item = Object.entries(CharSet.Items).find(
+      ([, d]) => d.mapCode === tile,
+    );
     if (item) {
       this.inventory.push(item[0]);
       console.log(`Picked up ${item[0]}!`);
@@ -52,7 +56,9 @@ export class Player {
     if (nx < 0 || nx >= db.WStandart) return;
     const tile = this.getTile(nx, this.globalY);
     if (tile === 1) return;
-    const item = Object.entries(ITEM_DEFS).find(([, d]) => d.mapCode === tile);
+    const item = Object.entries(CharSet.Items).find(
+      ([, d]) => d.mapCode === tile,
+    );
     if (item) {
       this.inventory.push(item[0]);
       this.setTile(nx, this.globalY, 0);

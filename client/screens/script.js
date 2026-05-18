@@ -1,11 +1,13 @@
 import { MazeDataBase } from "../../shared/Mazegen.js";
-import { ChangeTree } from "../colyseus.js";
+// import { ChangeTree } from "../colyseus.js"; legacy => my unlucky multiplayer attempt
 import { Player } from "../player.js";
-const CharSet = require("client/Charset.json");
 
-const colyseusClient = new Colyseus.Client(
-  "wss://special-space-couscous-694w5q5rvg99cjx4-2567.app.github.dev",
-);
+// Replace the import with this at the top of script.js
+const res = await fetch("./Charset.json");
+const CharSet = await res.json();
+// const colyseusClient = new Colyseus.Client(
+//   "wss://special-space-couscous-694w5q5rvg99cjx4-2567.app.github.dev",
+// );
 let room;
 
 let level = [];
@@ -213,18 +215,21 @@ async function initLevel() {
   db.removedChunks = 0;
   scrollStarted = false;
 
-  try {
-    room = await colyseusClient.joinOrCreate("game_room", { name: "Deni" });
-    console.log("✅ Joined room:", room.id);
+  //Legacy => multiplayer
 
-    room.onMessage("game_start", (msg) => {
-      gameStartAt = msg.startAt;
-    });
-  } catch (e) {
-    console.warn("Сервер недоступен, играем одни:", e.message);
-  }
+  // try {
+  //   room = await colyseusClient.joinOrCreate("game_room", { name: "Deni" });
+  //   console.log("Joined room:", room.id);
+
+  //   room.onMessage("game_start", (msg) => {
+  //     gameStartAt = msg.startAt;
+  //   });
+  // } catch (e) {
+  //   console.warn("Сервер недоступен, играем одни:", e.message);
+  // }
   // gameStartTime = millis() // millist is a p5 function i use. It returns the amo of ms since the start of the programm;
   // lastSpeedUp = millis();
+
   gameState = GSPLAY;
 
   db.generateMaze(pickTexture());
