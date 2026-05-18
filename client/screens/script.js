@@ -2,9 +2,7 @@ import { MazeDataBase } from "../../shared/Mazegen.js";
 // import { ChangeTree } from "../colyseus.js"; legacy => my unlucky multiplayer attempt
 import { Player } from "../player.js";
 
-// Replace the import with this at the top of script.js
-const res = await fetch(new URL("../Charset.json", import.meta.url));
-const CharSet = await res.json();
+let CharSet;
 // const colyseusClient = new Colyseus.Client(
 //   "wss://special-space-couscous-694w5q5rvg99cjx4-2567.app.github.dev",
 // );
@@ -71,6 +69,23 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   ellipseMode(CORNER);
   noStroke();
+
+  //Prioratise character loading
+  const paths = CharSet[playerSet];
+  charSetImages.up = loadImage(paths.up);
+  charSetImages.right = loadImage(paths.right);
+  charSetImages.down = loadImage(paths.down);
+  charSetImages.left = loadImage(paths.left);
+
+  Object.entries(CharSet.Items).forEach(([, def]) => {
+    itemImages[def.mapCode] = loadImage(def.image);
+  });
+
+  Object.values(CharSet.Textures).forEach((files) => {
+    files.forEach((file) => {
+      wallTextures[file] = loadImage(`images/textures/${file}`);
+    });
+  });
 
   document.getElementById("new-game-btn").addEventListener("click", initLevel);
   initLevel();
@@ -240,21 +255,7 @@ function initLevel() {
 }
 
 function preload() {
-  const paths = CharSet[playerSet];
-  charSetImages.up = loadImage(paths.up);
-  charSetImages.right = loadImage(paths.right);
-  charSetImages.down = loadImage(paths.down);
-  charSetImages.left = loadImage(paths.left);
-
-  Object.entries(CharSet.Items).forEach(([, def]) => {
-    itemImages[def.mapCode] = loadImage(def.image);
-  });
-
-  Object.values(CharSet.Textures).forEach((files) => {
-    files.forEach((file) => {
-      wallTextures[file] = loadImage(`images/textures/${file}`);
-    });
-  });
+  CharSet = loadJSON(new URL("../Charset.json", import.meta.url).href);
 }
 
 window.setup = setup;

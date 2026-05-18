@@ -1,9 +1,9 @@
 {
   "NindjiaSET": {
-    "up": "client/images/NindjiaSET/up.png",
-    "right": "client/images/NindjiaSET/right.png",
-    "down": "client/images/NindjiaSET/down.png",
-    "left": "client/images/NindjiaSET/left.png"
+    "up": "images/NindjiaSET/up.png",
+    "right": "images/NindjiaSET/right.png",
+    "down": "images/NindjiaSET/down.png",
+    "left": "images/NindjiaSET/left.png"
   },
   "Textures": {
     "cave": [
@@ -93,11 +93,11 @@
   "Items": {
     "Axe": {
       "mapCode": 3,
-      "image": "client/images/Toolset/Axe.png"
+      "image": "images/Toolset/Axe.png"
     },
     "Health": {
       "mapCode": 5,
-      "image": "client/images/Toolset/Health.png"
+      "image": "images/Toolset/Health.png"
     }
   }
 }
